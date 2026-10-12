@@ -44,6 +44,17 @@ def test_formaliza_con_responsable_y_registra_quien_lo_hizo(escenario):
     assert practica.history.first().history_user == escenario.responsable
 
 
+# Final review: un doble clic no debe saltar dos niveles de madurez
+def test_promover_con_el_estado_desactualizado_no_salta_de_nivel(escenario):
+    dejar_formalizada(escenario)  # el cliente todavía cree que está en identificada
+
+    with pytest.raises(ValidationError, match="cambió de estado"):
+        services.promover_practica(escenario.practica.id, escenario.responsable, desde=Estado.IDENTIFICADA)
+
+    escenario.practica.refresh_from_db()
+    assert escenario.practica.estado == Estado.FORMALIZADA
+
+
 def test_no_pasa_a_medida_sin_medicion_validada(escenario):
     dejar_formalizada(escenario)  # solo existe la medición en borrador
 

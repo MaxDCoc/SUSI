@@ -41,6 +41,23 @@ def test_archivos_invalidos_dan_400(api_para, escenario, nombre, contenido):
     assert respuesta.status_code == 400
 
 
+# Final review: la evidencia que llega después de validar nadie la vio
+def test_no_se_agrega_evidencia_a_una_medicion_ya_validada(api_para, escenario):
+    from indicators.models import EstadoMedicion
+
+    escenario.medicion.estado = EstadoMedicion.VALIDADA
+    escenario.medicion.save()
+
+    respuesta = api_para(escenario.responsable).post(
+        URL,
+        {"medicion": escenario.medicion.id, "tipo": "enlace", "url": "https://example.org/tarde"},
+        format="json",
+    )
+
+    assert respuesta.status_code == 400
+    assert escenario.medicion.evidencias.count() == 0
+
+
 def test_enlace_https_valido_y_javascript_invalido(api_para, escenario):
     cliente = api_para(escenario.responsable)
     base = {"medicion": escenario.medicion.id, "tipo": "enlace"}

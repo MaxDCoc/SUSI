@@ -56,6 +56,36 @@ def test_periodo_y_valor_invalidos_dan_400(api_para, escenario, campo, valor):
     assert campo in respuesta.json()
 
 
+# Final review (Review Focus 3): quien edita el borrador de otro pasa a ser quien lo cargó
+def test_quien_edita_el_borrador_de_otro_no_puede_validarlo(api_para, escenario, user_factory):
+    doble = user_factory(username="doble")
+    Membership.objects.create(user=doble, facultad=escenario.facultad, rol=Rol.RESPONSABLE)
+    Membership.objects.create(user=doble, facultad=escenario.facultad, rol=Rol.VALIDADOR)
+    cliente = api_para(doble)
+
+    editada = cliente.patch(f"{URL}{escenario.medicion.id}/", {"valor": "999"}, format="json")
+    enviada = cliente.post(f"{URL}{escenario.medicion.id}/enviar/")
+    validada = cliente.post(f"{URL}{escenario.medicion.id}/validar/")
+
+    assert (editada.status_code, enviada.status_code) == (200, 200)
+    assert validada.status_code == 403
+    escenario.medicion.refresh_from_db()
+    assert escenario.medicion.estado == EstadoMedicion.ENVIADA
+    assert escenario.medicion.validado_por is None
+
+
+# Final review (spec §10): los datos de ejemplo se rotulan también en la cola de validación
+def test_la_medicion_expone_si_su_practica_es_ilustrativa(api_para, escenario):
+    from catalog.models import Origen
+
+    escenario.practica.origen = Origen.ILUSTRATIVA
+    escenario.practica.save()
+
+    cuerpo = api_para(escenario.responsable).get(f"{URL}{escenario.medicion.id}/").json()
+
+    assert cuerpo["practica_origen"] == "ilustrativa"
+
+
 def test_un_validador_no_carga_mediciones(api_para, escenario):
     assert api_para(escenario.validador).post(URL, nueva(escenario), format="json").status_code == 403
 

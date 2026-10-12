@@ -7,6 +7,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 
 from accounts.models import Rol
 from accounts.scope import exigir_rol
+from indicators.models import EstadoMedicion
 from susi.queryparams import entero
 
 from .models import Evidencia
@@ -38,6 +39,8 @@ class EvidenciaViewSet(viewsets.ModelViewSet):
         else:
             raise ValidationError("La evidencia debe pertenecer a una medición o a una práctica.")
         exigir_rol(self.request.user, facultad_id, Rol.RESPONSABLE)
+        if medicion is not None and medicion.estado == EstadoMedicion.VALIDADA:
+            raise ValidationError("No se puede agregar evidencia a una medición ya validada.")
         serializer.save(creado_por=self.request.user)
 
     @action(detail=True, methods=["get"])

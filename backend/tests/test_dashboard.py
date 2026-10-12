@@ -74,6 +74,20 @@ def test_kpis_de_resumen(api_para, escenario):
     assert cuerpo["kpis"]["con_evidencia_validada"] == {"cantidad": 1, "porcentaje": 33.3}
 
 
+# Final review (spec §10): el tablero avisa cuántas prácticas son datos de ejemplo
+def test_el_resumen_cuenta_las_practicas_ilustrativas(api_para, escenario):
+    from catalog.models import Origen
+
+    Practica.objects.create(
+        facultad=escenario.facultad, nombre="Ejemplo", dimension=Dimension.SOCIAL, origen=Origen.ILUSTRATIVA
+    )
+
+    cuerpo = api_para(escenario.responsable).get(RESUMEN).json()
+
+    assert cuerpo["total_practicas"] == 2
+    assert cuerpo["ilustrativas"] == 1
+
+
 def test_una_medicion_validada_sin_evidencia_no_cuenta_como_evidencia_validada(api_para, escenario):
     nueva_medicion_validada(
         escenario.indicador, escenario.responsable, escenario.validador, "2026-02", con_evidencia=False

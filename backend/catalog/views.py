@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -62,12 +62,16 @@ class PracticaViewSet(viewsets.ModelViewSet):
         nueva = serializer.validated_data.get("facultad")
         if nueva is not None:
             exigir_rol(usuario, nueva.id, Rol.RESPONSABLE)
+            if nueva.pk != serializer.instance.facultad_id:
+                # Los permisos de objeto (guardian) se otorgan por facultad al crear la práctica.
+                raise ValidationError("No se puede cambiar la facultad de una práctica.")
         serializer.save()
 
     @action(detail=True, methods=["post"])
     def promover(self, request, pk=None):
         practica = self.get_object()
-        actualizada = services.promover_practica(practica.pk, request.user)
+        desde = request.data.get("desde", "") if hasattr(request.data, "get") else ""
+        actualizada = services.promover_practica(practica.pk, request.user, desde if isinstance(desde, str) else "")
         return Response(self.get_serializer(actualizada).data)
 
     @action(detail=True, methods=["post"])

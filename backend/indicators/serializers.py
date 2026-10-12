@@ -30,6 +30,7 @@ class MedicionSerializer(serializers.ModelSerializer):
     unidad = serializers.CharField(source="indicador.unidad", read_only=True)
     practica_id = serializers.IntegerField(source="indicador.practica_id", read_only=True)
     practica_nombre = serializers.CharField(source="indicador.practica.nombre", read_only=True)
+    practica_origen = serializers.CharField(source="indicador.practica.origen", read_only=True)
     facultad_id = serializers.IntegerField(source="indicador.practica.facultad_id", read_only=True)
     facultad_nombre = serializers.CharField(source="indicador.practica.facultad.nombre", read_only=True)
     cargado_por_nombre = serializers.CharField(source="cargado_por.username", read_only=True)
@@ -46,6 +47,7 @@ class MedicionSerializer(serializers.ModelSerializer):
             "unidad",
             "practica_id",
             "practica_nombre",
+            "practica_origen",
             "facultad_id",
             "facultad_nombre",
             "periodo",

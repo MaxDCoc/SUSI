@@ -1,6 +1,6 @@
 from django.db.models import Count
 
-from catalog.models import ESTADOS_ORDEN, Dimension, Facultad, Practica
+from catalog.models import ESTADOS_ORDEN, Dimension, Facultad, Origen, Practica
 from indicators.models import EstadoMedicion
 
 ESTADOS = [estado.value for estado in ESTADOS_ORDEN]
@@ -72,6 +72,7 @@ def resumen(filtros: dict) -> dict:
 
     return {
         "total_practicas": total,
+        "ilustrativas": qs.filter(origen=Origen.ILUSTRATIVA).count(),
         "kpis": {
             "con_responsable": _kpi(con_responsable, total),
             "con_indicador": _kpi(con_indicador, total),

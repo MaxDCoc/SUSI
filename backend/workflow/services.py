@@ -44,9 +44,12 @@ def requisito_faltante(practica: Practica, destino: str) -> str | None:
 
 
 @transaction.atomic
-def promover_practica(practica_id: int, user) -> Practica:
+def promover_practica(practica_id: int, user, desde: str | None = None) -> Practica:
+    """Promueve un nivel. `desde` es el estado que el cliente cree vigente: si ya cambió (doble clic), falla."""
     practica = Practica.objects.select_for_update().get(pk=practica_id)
     exigir_rol(user, practica.facultad_scope_id, Rol.RESPONSABLE)
+    if desde and desde != practica.estado:
+        raise ValidationError("La práctica cambió de estado mientras tanto. Recargá la página para ver el estado actual.")
     destino = practica.estado_siguiente()
     if destino is None:
         raise ValidationError("La práctica ya está en el estado máximo (optimizada).")

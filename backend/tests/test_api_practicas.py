@@ -2,6 +2,7 @@ import pytest
 
 from accounts.models import Membership, Rol
 from catalog.models import ODS, Dimension, Estado, Practica
+from tests.helpers import nueva_medicion_validada
 
 pytestmark = pytest.mark.django_db
 
@@ -147,6 +148,38 @@ def test_solo_el_administrador_retrocede(api_para, escenario, user_factory):
     )
     assert como_admin.status_code == 200
     assert como_admin.json()["estado"] == "identificada"
+
+
+# Final review: doble clic en "Promover" y práctica movida entre facultades
+def test_promover_con_el_estado_que_ve_el_cliente_evita_saltar_dos_niveles(api_para, escenario):
+    escenario.practica.responsable = escenario.responsable
+    escenario.practica.save()
+    # Con una medición validada con evidencia, el segundo clic llegaría hasta "medida" si no se lo frena.
+    nueva_medicion_validada(escenario.indicador, escenario.responsable, escenario.validador, "2026-02")
+    cliente = api_para(escenario.responsable)
+    url = f"{URL}{escenario.practica.id}/promover/"
+
+    primero = cliente.post(url, {"desde": "identificada"}, format="json")
+    segundo = cliente.post(url, {"desde": "identificada"}, format="json")  # el doble clic
+
+    assert primero.status_code == 200
+    assert segundo.status_code == 400
+    escenario.practica.refresh_from_db()
+    assert escenario.practica.estado == Estado.FORMALIZADA
+
+
+def test_no_se_mueve_una_practica_a_otra_facultad_ni_siendo_responsable_de_ambas(
+    api_para, escenario, otra_facultad
+):
+    Membership.objects.create(user=escenario.responsable, facultad=otra_facultad, rol=Rol.RESPONSABLE)
+
+    respuesta = api_para(escenario.responsable).patch(
+        f"{URL}{escenario.practica.id}/", {"facultad": otra_facultad.id}, format="json"
+    )
+
+    assert respuesta.status_code == 400
+    escenario.practica.refresh_from_db()
+    assert escenario.practica.facultad == escenario.facultad
 
 
 def test_catalogos_expone_regiones_facultades_ods_y_enumeraciones(api_para, escenario):

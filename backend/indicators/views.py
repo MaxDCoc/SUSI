@@ -80,7 +80,8 @@ class MedicionViewSet(viewsets.ModelViewSet):
         nuevo = serializer.validated_data.get("indicador")
         if nuevo is not None and nuevo.pk != instancia.indicador_id:
             raise ValidationError("No se puede cambiar el indicador de una medición.")
-        serializer.save()
+        # Quien modifica el borrador pasa a ser quien lo cargó: así no puede validarlo después.
+        serializer.save(cargado_por=self.request.user)
 
     def _responder(self, pk) -> Response:
         # Se relee con el queryset de la vista para que incluya evidencias y nombres.
