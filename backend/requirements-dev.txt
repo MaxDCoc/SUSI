@@ -1,3 +1,4 @@
 -r requirements.txt
 pytest>=8.0
 pytest-django>=4.8
+moto[server]>=5.0
