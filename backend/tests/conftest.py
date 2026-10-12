@@ -60,3 +60,22 @@ def indicador(practica):
         periodicidad=Periodicidad.MENSUAL,
         tipo=TipoIndicador.INSTITUCIONAL,
     )
+
+
+@pytest.fixture(autouse=True)
+def _media_temporal(settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path / "media"
+
+
+@pytest.fixture
+def escenario_simple(indicador, user_factory):
+    """(medicion, usuario) mínimo para tests que no necesitan roles."""
+    from decimal import Decimal
+
+    from indicators.models import Medicion
+
+    usuario = user_factory()
+    medicion = Medicion.objects.create(
+        indicador=indicador, periodo="2026-01", valor=Decimal("10"), cargado_por=usuario
+    )
+    return medicion, usuario

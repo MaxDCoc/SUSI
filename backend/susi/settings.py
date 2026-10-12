@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "catalog",
     "accounts",
     "indicators",
+    "evidence",
 ]
 
 MIDDLEWARE = [
