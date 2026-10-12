@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/frontend_dist/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Secretos
+.env
+
+# Editor / SO
+.idea/
+.vscode/
+.DS_Store
+
+# Espacio de trabajo local de la ejecución del plan
+.superpowers/
