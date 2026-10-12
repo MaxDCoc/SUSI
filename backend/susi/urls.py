@@ -22,5 +22,6 @@ urlpatterns = [
     path("api/auth/login/", auth_views.login_view, name="auth-login"),
     path("api/auth/logout/", auth_views.logout_view, name="auth-logout"),
     path("api/catalogos/", CatalogosView.as_view(), name="catalogos"),
+    path("api/dashboard/", include("dashboard.urls")),
     path("api/", include(router.urls)),
 ]

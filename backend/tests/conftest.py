@@ -2,6 +2,13 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
+def _cache_limpio():
+    from django.core.cache import cache
+
+    cache.clear()
+
+
+@pytest.fixture(autouse=True)
 def _hasher_rapido(settings):
     # PBKDF2 es lento a propósito; en tests un hasher barato acelera la suite sin cambiar el comportamiento.
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
