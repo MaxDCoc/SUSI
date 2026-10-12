@@ -37,3 +37,26 @@ def otra_facultad(db):
 
     centro = Region.objects.create(nombre="Centro")
     return Facultad.objects.create(nombre="Rafaela", region=centro)
+
+
+@pytest.fixture
+def practica(facultad):
+    from catalog.models import Dimension, Practica
+
+    return Practica.objects.create(
+        facultad=facultad, nombre="Paneles solares", dimension=Dimension.AMBIENTAL
+    )
+
+
+@pytest.fixture
+def indicador(practica):
+    from indicators.models import Indicador, Periodicidad, TipoIndicador
+
+    return Indicador.objects.create(
+        practica=practica,
+        nombre="Energía generada",
+        formula="Suma mensual de kWh generados",
+        unidad="kWh",
+        periodicidad=Periodicidad.MENSUAL,
+        tipo=TipoIndicador.INSTITUCIONAL,
+    )
