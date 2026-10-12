@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -56,7 +57,8 @@ class PracticaViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         usuario = self.request.user
-        exigir_rol(usuario, serializer.instance.facultad_id, Rol.RESPONSABLE)
+        if not usuario.has_perm("catalog.change_practica", serializer.instance):
+            raise PermissionDenied("No tenés permiso para editar esta práctica.")
         nueva = serializer.validated_data.get("facultad")
         if nueva is not None:
             exigir_rol(usuario, nueva.id, Rol.RESPONSABLE)

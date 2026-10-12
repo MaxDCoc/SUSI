@@ -1,4 +1,5 @@
 from django.contrib import admin
+from guardian.admin import GuardedModelAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
 from .models import ODS, Facultad, Practica, Region
@@ -22,7 +23,7 @@ class ODSAdmin(admin.ModelAdmin):
 
 
 @admin.register(Practica)
-class PracticaAdmin(SimpleHistoryAdmin):
+class PracticaAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin):
     list_display = ("nombre", "facultad", "dimension", "estado", "origen")
     list_filter = ("estado", "dimension", "origen", "facultad__region")
     search_fields = ("nombre", "facultad__nombre")
