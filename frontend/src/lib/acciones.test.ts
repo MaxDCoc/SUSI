@@ -1,7 +1,32 @@
 import { describe, expect, it } from "vitest";
 
 import type { Rol, Sesion } from "../api/types";
-import { accionesDeMedicion, puedeValidar } from "./acciones";
+import { accionesDeMedicion, puedeAgregarEvidencia, puedeRetroceder, puedeValidar } from "./acciones";
+
+describe("puedeAgregarEvidencia", () => {
+  it("se agrega evidencia antes de validar, no después", () => {
+    expect(puedeAgregarEvidencia("borrador", true)).toBe(true);
+    expect(puedeAgregarEvidencia("enviada", true)).toBe(true);
+    expect(puedeAgregarEvidencia("rechazada", true)).toBe(true);
+    expect(puedeAgregarEvidencia("validada", true)).toBe(false);
+  });
+
+  it("sin permiso de escritura no se agrega", () => {
+    expect(puedeAgregarEvidencia("borrador", false)).toBe(false);
+  });
+});
+
+describe("puedeRetroceder", () => {
+  const admin: Sesion = { authenticated: true, id: 1, es_admin: true, membresias: [] };
+  const responsable: Sesion = { authenticated: true, id: 2, es_admin: false, membresias: [] };
+
+  it("solo el administrador retrocede, y no desde identificada", () => {
+    expect(puedeRetroceder(admin, "formalizada")).toBe(true);
+    expect(puedeRetroceder(admin, "identificada")).toBe(false);
+    expect(puedeRetroceder(responsable, "formalizada")).toBe(false);
+    expect(puedeRetroceder(null, "formalizada")).toBe(false);
+  });
+});
 
 describe("accionesDeMedicion", () => {
   it("un responsable puede enviar un borrador y reabrir una rechazada", () => {

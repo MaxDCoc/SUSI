@@ -103,6 +103,12 @@ export default function Tablero() {
       )}
       {datos && opciones && (
         <>
+          {datos.ilustrativas > 0 && (
+            <p className="nota">
+              {datos.ilustrativas} de {datos.total_practicas} prácticas son datos ilustrativos (ejemplos inspirados en
+              el relevamiento, no cargados por las facultades).
+            </p>
+          )}
           <div className="grilla">
             <div className="tarjeta kpi">
               <strong>{datos.total_practicas}</strong>

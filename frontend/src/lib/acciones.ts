@@ -1,4 +1,4 @@
-import type { EstadoMedicion, Medicion, Rol, Sesion } from "../api/types";
+import type { Estado, EstadoMedicion, Medicion, Rol, Sesion } from "../api/types";
 
 export type AccionMedicion = "enviar" | "reabrir";
 
@@ -7,6 +7,15 @@ export function accionesDeMedicion(estado: EstadoMedicion, puedeEscribir: boolea
   if (estado === "borrador") return ["enviar"];
   if (estado === "rechazada") return ["reabrir"];
   return [];
+}
+
+// La evidencia va antes de la validación: una vez validada, nadie la revisó.
+export function puedeAgregarEvidencia(estado: EstadoMedicion, puedeEscribir: boolean): boolean {
+  return puedeEscribir && estado !== "validada";
+}
+
+export function puedeRetroceder(sesion: Sesion | null, estado: Estado): boolean {
+  return !!sesion?.es_admin && estado !== "identificada";
 }
 
 export function puedeValidar(

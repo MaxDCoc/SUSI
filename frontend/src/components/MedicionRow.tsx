@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { api, mensajeDeError } from "../api/client";
 import type { Medicion } from "../api/types";
-import { type AccionMedicion, accionesDeMedicion } from "../lib/acciones";
+import { type AccionMedicion, accionesDeMedicion, puedeAgregarEvidencia } from "../lib/acciones";
 import { MedicionBadge } from "./Badge";
 import EvidenciaForm from "./EvidenciaForm";
 
@@ -56,7 +56,7 @@ export default function MedicionRow({ medicion, puedeEscribir, onCambio }: Props
             </li>
           ))}
         </ul>
-        {puedeEscribir &&
+        {puedeAgregarEvidencia(medicion.estado, puedeEscribir) &&
           (agregando ? (
             <EvidenciaForm
               medicionId={medicion.id}

@@ -92,6 +92,7 @@ export interface Medicion {
   unidad: string;
   practica_id: number;
   practica_nombre: string;
+  practica_origen: "cargada" | "ilustrativa";
   facultad_id: number;
   facultad_nombre: string;
   periodo: string;
@@ -124,6 +125,7 @@ export interface Kpi {
 
 export interface Resumen {
   total_practicas: number;
+  ilustrativas: number;
   kpis: { con_responsable: Kpi; con_indicador: Kpi; con_evidencia_validada: Kpi };
   cobertura: { facultades_con_practicas: number; facultades_total: number; porcentaje: number };
   embudo: Record<Estado, number>;

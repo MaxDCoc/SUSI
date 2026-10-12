@@ -8,6 +8,7 @@ import { useApi } from "../api/useApi";
 import { useAuth } from "../auth/AuthContext";
 import { EstadoBadge, IlustrativoBadge } from "../components/Badge";
 import IndicadorCard from "../components/IndicadorCard";
+import { puedeRetroceder } from "../lib/acciones";
 
 const INDICADOR_VACIO = { nombre: "", formula: "", unidad: "", periodicidad: "mensual", tipo: "institucional", meta: "" };
 
@@ -20,6 +21,8 @@ export default function PracticaDetalle() {
   const mediciones = useApi<Page<Medicion>>(`/api/mediciones/?practica=${id}&page_size=100`);
   const [error, setError] = useState<string | null>(null);
   const [nuevo, setNuevo] = useState(INDICADOR_VACIO);
+  const [pendiente, setPendiente] = useState(false);
+  const [motivo, setMotivo] = useState("");
 
   function recargar() {
     practica.recargar();
@@ -40,13 +43,31 @@ export default function PracticaDetalle() {
   const puedeEscribir = tieneRol(p.facultad, "responsable");
   const siguiente = catalogos.data?.estados[ESTADOS.indexOf(p.estado) + 1];
 
+  // Un clic doble no puede saltar dos niveles: se manda el estado que se ve y se bloquea el botón mientras espera.
   async function promover() {
     setError(null);
+    setPendiente(true);
     try {
-      await api(`/api/practicas/${p.id}/promover/`, { method: "POST" });
+      await api(`/api/practicas/${p.id}/promover/`, { method: "POST", body: { desde: p.estado } });
       recargar();
     } catch (e) {
       setError(mensajeDeError(e));
+    } finally {
+      setPendiente(false);
+    }
+  }
+
+  async function retroceder() {
+    setError(null);
+    setPendiente(true);
+    try {
+      await api(`/api/practicas/${p.id}/retroceder/`, { method: "POST", body: { motivo: motivo.trim() } });
+      setMotivo("");
+      recargar();
+    } catch (e) {
+      setError(mensajeDeError(e));
+    } finally {
+      setPendiente(false);
     }
   }
 
@@ -91,7 +112,7 @@ export default function PracticaDetalle() {
       {puedeEscribir && (
         <p className="fila">
           {siguiente && (
-            <button type="button" onClick={promover}>
+            <button type="button" disabled={pendiente} onClick={promover}>
               Promover a {siguiente.etiqueta}
             </button>
           )}
@@ -100,6 +121,17 @@ export default function PracticaDetalle() {
               Asumir la responsabilidad
             </button>
           )}
+        </p>
+      )}
+      {puedeRetroceder(sesion, p.estado) && (
+        <p className="fila">
+          <label>
+            Motivo del retroceso
+            <input value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+          </label>
+          <button type="button" className="secundario" disabled={pendiente || motivo.trim() === ""} onClick={retroceder}>
+            Retroceder
+          </button>
         </p>
       )}
       {error && (

@@ -5,6 +5,7 @@ import { api, mensajeDeError } from "../api/client";
 import type { Medicion, Page } from "../api/types";
 import { useApi } from "../api/useApi";
 import { useAuth } from "../auth/AuthContext";
+import { IlustrativoBadge } from "../components/Badge";
 import { puedeValidar } from "../lib/acciones";
 
 export default function Validaciones() {
@@ -41,7 +42,8 @@ export default function Validaciones() {
         return (
           <article key={m.id} className="tarjeta">
             <h3>
-              <Link to={`/practicas/${m.practica_id}`}>{m.practica_nombre}</Link>
+              <Link to={`/practicas/${m.practica_id}`}>{m.practica_nombre}</Link>{" "}
+              {m.practica_origen === "ilustrativa" && <IlustrativoBadge />}
             </h3>
             <p>
               {m.facultad_nombre} · {m.indicador_nombre} · {m.periodo} ·{" "}
