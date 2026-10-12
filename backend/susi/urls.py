@@ -7,7 +7,7 @@ from catalog.views import CatalogosView, PracticaViewSet
 from evidence.views import EvidenciaViewSet
 from indicators.views import IndicadorViewSet, MedicionViewSet
 
-from .views import health, spa
+from .views import health, health_db, spa
 
 router = SimpleRouter()
 router.register("practicas", PracticaViewSet, basename="practica")
@@ -18,6 +18,7 @@ router.register("evidencias", EvidenciaViewSet, basename="evidencia")
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health, name="health"),
+    path("health/db/", health_db, name="health-db"),
     path("api/auth/session/", auth_views.sesion, name="auth-sesion"),
     path("api/auth/login/", auth_views.login_view, name="auth-login"),
     path("api/auth/logout/", auth_views.logout_view, name="auth-logout"),
