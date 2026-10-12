@@ -1,6 +1,25 @@
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _hasher_rapido(settings):
+    # PBKDF2 es lento a propósito; en tests un hasher barato acelera la suite sin cambiar el comportamiento.
+    settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+
+@pytest.fixture
+def api_para():
+    from rest_framework.test import APIClient
+
+    def crear(usuario=None):
+        cliente = APIClient()
+        if usuario is not None:
+            cliente.force_authenticate(user=usuario)
+        return cliente
+
+    return crear
+
+
 @pytest.fixture
 def user_factory(db):
     from django.contrib.auth import get_user_model

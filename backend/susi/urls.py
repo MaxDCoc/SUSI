@@ -1,9 +1,21 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import SimpleRouter
+
+from accounts import views as auth_views
+from catalog.views import CatalogosView, PracticaViewSet
 
 from .views import health
+
+router = SimpleRouter()
+router.register("practicas", PracticaViewSet, basename="practica")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health, name="health"),
+    path("api/auth/session/", auth_views.sesion, name="auth-sesion"),
+    path("api/auth/login/", auth_views.login_view, name="auth-login"),
+    path("api/auth/logout/", auth_views.logout_view, name="auth-logout"),
+    path("api/catalogos/", CatalogosView.as_view(), name="catalogos"),
+    path("api/", include(router.urls)),
 ]
