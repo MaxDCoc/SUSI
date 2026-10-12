@@ -2,6 +2,12 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
+def _greenops_apagado(settings):
+    # La medición escribe en la base en cada request: solo se activa en los tests de greenops.
+    settings.GREENOPS_ENABLED = False
+
+
+@pytest.fixture(autouse=True)
 def _cache_limpio():
     from django.core.cache import cache
 

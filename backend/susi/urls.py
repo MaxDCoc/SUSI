@@ -23,5 +23,6 @@ urlpatterns = [
     path("api/auth/logout/", auth_views.logout_view, name="auth-logout"),
     path("api/catalogos/", CatalogosView.as_view(), name="catalogos"),
     path("api/dashboard/", include("dashboard.urls")),
+    path("api/green/", include("greenops.urls")),
     path("api/", include(router.urls)),
 ]

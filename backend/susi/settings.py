@@ -38,9 +38,12 @@ INSTALLED_APPS = [
     "indicators",
     "evidence",
     "dashboard",
+    "greenops",
 ]
 
 MIDDLEWARE = [
+    # Primero: así mide también la respuesta ya comprimida por GZip.
+    "greenops.middleware.GreenOpsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.gzip.GZipMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -108,3 +111,5 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "susi.pagination.PaginacionEstandar",
     "PAGE_SIZE": 20,
 }
+
+GREENOPS_ENABLED = os.environ.get("SUSI_GREENOPS", "1") == "1"
