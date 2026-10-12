@@ -21,3 +21,7 @@ frontend/dist/
 
 # Espacio de trabajo local de la ejecución del plan
 .superpowers/
+
+# Playwright
+frontend/test-results/
+frontend/playwright-report/
