@@ -79,3 +79,28 @@ def escenario_simple(indicador, user_factory):
         indicador=indicador, periodo="2026-01", valor=Decimal("10"), cargado_por=usuario
     )
     return medicion, usuario
+
+
+@pytest.fixture
+def escenario(facultad, practica, indicador, user_factory):
+    from decimal import Decimal
+    from types import SimpleNamespace
+
+    from accounts.models import Membership, Rol
+    from indicators.models import Medicion
+
+    responsable = user_factory(username="responsable")
+    validador = user_factory(username="validador")
+    Membership.objects.create(user=responsable, facultad=facultad, rol=Rol.RESPONSABLE)
+    Membership.objects.create(user=validador, facultad=facultad, rol=Rol.VALIDADOR)
+    medicion = Medicion.objects.create(
+        indicador=indicador, periodo="2026-01", valor=Decimal("120.5"), cargado_por=responsable
+    )
+    return SimpleNamespace(
+        facultad=facultad,
+        practica=practica,
+        indicador=indicador,
+        medicion=medicion,
+        responsable=responsable,
+        validador=validador,
+    )
