@@ -4,11 +4,16 @@ from rest_framework.routers import SimpleRouter
 
 from accounts import views as auth_views
 from catalog.views import CatalogosView, PracticaViewSet
+from evidence.views import EvidenciaViewSet
+from indicators.views import IndicadorViewSet, MedicionViewSet
 
 from .views import health
 
 router = SimpleRouter()
 router.register("practicas", PracticaViewSet, basename="practica")
+router.register("indicadores", IndicadorViewSet, basename="indicador")
+router.register("mediciones", MedicionViewSet, basename="medicion")
+router.register("evidencias", EvidenciaViewSet, basename="evidencia")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
