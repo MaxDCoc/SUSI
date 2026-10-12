@@ -113,3 +113,8 @@ REST_FRAMEWORK = {
 }
 
 GREENOPS_ENABLED = os.environ.get("SUSI_GREENOPS", "1") == "1"
+
+# Build de React: lo sirve la propia app (assets con WhiteNoise, index.html con la vista `spa`).
+FRONTEND_DIST = Path(os.environ.get("SUSI_FRONTEND_DIST", BASE_DIR / "frontend_dist"))
+if FRONTEND_DIST.is_dir():
+    WHITENOISE_ROOT = FRONTEND_DIST

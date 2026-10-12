@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from rest_framework.routers import SimpleRouter
 
 from accounts import views as auth_views
@@ -7,7 +7,7 @@ from catalog.views import CatalogosView, PracticaViewSet
 from evidence.views import EvidenciaViewSet
 from indicators.views import IndicadorViewSet, MedicionViewSet
 
-from .views import health
+from .views import health, spa
 
 router = SimpleRouter()
 router.register("practicas", PracticaViewSet, basename="practica")
@@ -25,4 +25,6 @@ urlpatterns = [
     path("api/dashboard/", include("dashboard.urls")),
     path("api/green/", include("greenops.urls")),
     path("api/", include(router.urls)),
+    # Siempre al final: cualquier otra ruta es del SPA.
+    re_path(r"^(?!api/|admin/|static/|health/).*$", spa, name="spa"),
 ]
