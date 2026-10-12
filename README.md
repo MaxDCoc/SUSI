@@ -17,6 +17,11 @@ docker compose exec app python manage.py seed_demo
 Abrir http://localhost:8000. Usuarios de demo: `admin.demo`, `responsable.demo`, `validador.demo`
 (contraseña: la de `SUSI_DEMO_PASSWORD`).
 
+## Publicarlo en internet (gratis)
+
+Guía paso a paso con Render + Supabase + UptimeRobot, para que los usuarios solo abran una URL:
+[`docs/deploy-render-supabase.md`](docs/deploy-render-supabase.md). El Blueprint está en [`render.yaml`](render.yaml).
+
 ## Desarrollo
 
 ```bash

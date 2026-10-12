@@ -1,0 +1,39 @@
+# Blueprint de Render para SUSI (plan gratis). Guía paso a paso: docs/deploy-render-supabase.md
+# Los valores con `sync: false` se piden al crear el Blueprint; NUNCA se escriben acá.
+services:
+  - type: web
+    name: susi
+    runtime: docker
+    plan: free
+    # Virginia es la región de Render más cercana a Argentina; en Supabase elegir también "East US (North Virginia)".
+    region: virginia
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health/
+    autoDeployTrigger: commit
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      # Render termina el HTTPS: Django debe confiar en X-Forwarded-Proto y marcar las cookies como seguras.
+      - key: DJANGO_BEHIND_PROXY
+        value: "1"
+      - key: DJANGO_SECURE_COOKIES
+        value: "1"
+      - key: SUSI_GREENOPS
+        value: "1"
+      # Postgres de Supabase: usar la cadena del "Session pooler" (Render gratis solo tiene IPv4).
+      - key: DATABASE_URL
+        sync: false
+      # Evidencias en un bucket privado de Supabase Storage (el disco de Render gratis es efímero).
+      - key: SUSI_S3_ENDPOINT_URL
+        sync: false
+      - key: SUSI_S3_BUCKET
+        value: evidencias
+      - key: SUSI_S3_REGION
+        sync: false
+      - key: SUSI_S3_ACCESS_KEY
+        sync: false
+      - key: SUSI_S3_SECRET_KEY
+        sync: false
