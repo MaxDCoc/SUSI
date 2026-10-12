@@ -20,6 +20,9 @@ RUN DJANGO_DEBUG=1 python manage.py collectstatic --noinput \
     && mkdir -p /data/media \
     && chown -R susi:susi /data/media
 USER susi
+# La imagen arranca en modo producción aunque el entorno no lo diga (collectstatic de arriba lo fuerza solo ahí).
+ENV DJANGO_DEBUG=0
 EXPOSE 8000
+# El puerto lo fija la plataforma con $PORT (Render usa 10000); local y Docker Compose usan 8000.
 # 1 worker + threads: el caché de agregados (en memoria) debe vivir en un solo proceso.
-CMD ["sh", "-c", "python manage.py migrate --noinput && exec gunicorn susi.wsgi:application --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 60"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && exec gunicorn susi.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 1 --threads 4 --timeout 60"]
