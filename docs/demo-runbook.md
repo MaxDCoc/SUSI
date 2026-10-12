@@ -21,16 +21,21 @@ Abrir dos ventanas del navegador (una normal para el Responsable y una privada p
 2. **Responsable → `responsable.demo`, pestaña *Prácticas*.** Se ven las 9 prácticas con la insignia *Datos ilustrativos*
    (inspiradas en el relevamiento, no cargadas por las facultades). Mostrar los estados de madurez.
 3. **Crear una práctica** en Mendoza ("Medición de consumo de agua", dimensión ambiental, ODS 6). Abrirla.
-4. **La regla "evidencia antes que declaración":** apretar *Promover a Formalizada* → error en rojo
-   ("Falta asignar un responsable…"). Apretar *Asumir la responsabilidad* y volver a *Promover* → pasa a Formalizada.
+4. **Reglas de madurez:** apretar *Promover a Formalizada* → error en rojo ("Falta asignar un responsable…").
+   Apretar *Asumir la responsabilidad* y volver a *Promover* → pasa a Formalizada.
 5. **Indicador y medición:** *Nuevo indicador* ("Consumo de agua", fórmula "m³ facturados en el mes", unidad `m3`, mensual) →
    *Cargar medición* (período `2026-09`, valor `120`) → *Agregar evidencia* (un enlace) → *Enviar a validación*.
+   **Evidencia antes que declaración:** apretar *Promover a Medida* ahora → error en rojo ("Falta un indicador con al menos
+   una medición validada y con evidencia…"): todavía nadie validó la medición.
 6. **Validador → ventana privada con `validador.demo`, pestaña *Validaciones*.** Aparecen dos pendientes: la recién cargada
-   y la de Delta. Validar la de Mendoza. Mostrar que `responsable.demo` **no** puede validar lo suyo (botón deshabilitado
-   y mensaje).
-7. **Volver al Responsable:** abrir la práctica de **Delta** ("Cálculo de huella de carbono…") → *Promover a Medida*
-   (ahora sí: hay una medición validada **con evidencia**). Mostrar el cambio de estado.
+   (Mendoza) y la de Delta, esta última con la insignia *Datos ilustrativos*. **Validar las dos.** Si preguntan por la
+   separación de funciones: el servidor rechaza que quien cargó una medición la valide (está cubierto por tests
+   automáticos); el Validador solo ve la cola, no tiene botones de carga.
+7. **Volver al Responsable:** abrir la práctica de **Mendoza** creada en el paso 3 → *Promover a Medida* (ahora sí: tiene una
+   medición validada **con evidencia**). Mostrar el cambio de estado. Si sobra tiempo, repetir con la de Delta
+   ("Cálculo de huella de carbono…"), que quedó validada en el paso 6.
 8. **Tablero:** el embudo y los KPIs cambiaron. Filtrar por región y por ODS. "Facultades con prácticas cargadas: X / 30."
+   Leer el aviso de datos ilustrativos: casi todas las prácticas son ejemplos, no cargas reales.
 9. **Green Software:** mostrar el SCI estimado de *este mismo flujo*, la unidad funcional (1.000 operaciones del flujo
    núcleo) y los supuestos con su fuente. Decir explícitamente: **es una estimación**, no una medición de hardware.
    Mostrar la tabla de costo por operación y las decisiones de Green Software aplicadas.
