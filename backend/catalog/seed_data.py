@@ -1,0 +1,206 @@
+from decimal import Decimal
+
+from catalog.models import Dimension, Estado
+from indicators.models import EstadoMedicion, Periodicidad, TipoIndicador
+
+# Regionalización del análisis del relevamiento. Las regiones de Paraná, Buenos Aires, General Pacheco,
+# La Plata, Trenque Lauquen, Chubut, Santa Cruz y Tierra del Fuego no figuran en el análisis (no
+# respondieron) y se asignaron con su mismo criterio: el grupo debe verificarlas antes de la demo.
+FACULTADES = {
+    "NEA": ["Resistencia"],
+    "NOA": ["Tucumán", "La Rioja"],
+    "Cuyo": ["San Rafael", "Mendoza"],
+    "Centro": [
+        "Rafaela",
+        "Concepción del Uruguay",
+        "Rosario",
+        "Córdoba",
+        "Venado Tuerto",
+        "Santa Fe",
+        "Reconquista",
+        "Villa María",
+        "San Francisco",
+        "Concordia",
+        "Paraná",
+    ],
+    "Buenos Aires": [
+        "Bahía Blanca",
+        "Mar del Plata",
+        "San Nicolás",
+        "Avellaneda",
+        "Delta",
+        "Haedo",
+        "Buenos Aires",
+        "General Pacheco",
+        "La Plata",
+        "Trenque Lauquen",
+    ],
+    "Patagonia": ["del Neuquén", "Chubut", "Santa Cruz", "Tierra del Fuego"],
+    "Nivel Central": ["Rectorado"],
+}
+
+ODS = {
+    1: "Fin de la pobreza",
+    2: "Hambre cero",
+    3: "Salud y bienestar",
+    4: "Educación de calidad",
+    5: "Igualdad de género",
+    6: "Agua limpia y saneamiento",
+    7: "Energía asequible y no contaminante",
+    8: "Trabajo decente y crecimiento económico",
+    9: "Industria, innovación e infraestructura",
+    10: "Reducción de las desigualdades",
+    11: "Ciudades y comunidades sostenibles",
+    12: "Producción y consumo responsables",
+    13: "Acción por el clima",
+    14: "Vida submarina",
+    15: "Vida de ecosistemas terrestres",
+    16: "Paz, justicia e instituciones sólidas",
+    17: "Alianzas para lograr los objetivos",
+}
+
+USUARIOS_DEMO = [
+    {"username": "admin.demo", "admin": True, "rol": None},
+    {"username": "responsable.demo", "admin": False, "rol": "responsable"},
+    {"username": "validador.demo", "admin": False, "rol": "validador"},
+]
+FACULTADES_DEMO = ["Mendoza", "Delta", "San Francisco", "Resistencia", "del Neuquén"]
+
+URL_EVIDENCIA_ILUSTRATIVA = "https://example.org/datos-ilustrativos"
+PREFIJO = "Datos ilustrativos, inspirados en el relevamiento a las Facultades Regionales. "
+
+V = EstadoMedicion.VALIDADA
+
+PRACTICAS_DEMO = [
+    {
+        "facultad": "Mendoza",
+        "nombre": "Generación solar fotovoltaica en el campus",
+        "dimension": Dimension.AMBIENTAL,
+        "ods": [7, 13],
+        "estado": Estado.MEDIDA,
+        "responsable": True,
+        "proposito": PREFIJO + "Reducir la compra de energía de red con generación propia.",
+        "indicador": {
+            "nombre": "Energía solar generada",
+            "formula": "Suma mensual de kWh inyectados por los inversores",
+            "unidad": "kWh",
+            "periodicidad": Periodicidad.MENSUAL,
+            "tipo": TipoIndicador.INSTITUCIONAL,
+            "fuente": "Dato ilustrativo",
+        },
+        "mediciones": [("2026-07", Decimal("3800"), V), ("2026-08", Decimal("4100"), V)],
+    },
+    {
+        "facultad": "Mendoza",
+        "nombre": "Firma digital y digitalización de convenios",
+        "dimension": Dimension.INSTITUCIONAL,
+        "ods": [9, 12],
+        "estado": Estado.FORMALIZADA,
+        "responsable": True,
+        "proposito": PREFIJO + "Reducir el uso de papel en trámites administrativos.",
+        "indicador": {
+            "nombre": "Trámites firmados digitalmente",
+            "formula": "Trámites con firma digital / trámites totales x 100",
+            "unidad": "%",
+            "periodicidad": Periodicidad.TRIMESTRAL,
+            "tipo": TipoIndicador.INSTITUCIONAL,
+            "fuente": "Dato ilustrativo",
+            "meta": Decimal("80"),
+        },
+        "mediciones": [],
+    },
+    {
+        "facultad": "Mendoza",
+        "nombre": "Gestión diferenciada de residuos reciclables",
+        "dimension": Dimension.AMBIENTAL,
+        "ods": [12],
+        "estado": Estado.IDENTIFICADA,
+        "responsable": False,
+        "proposito": PREFIJO + "Separar residuos reciclables conforme a la normativa municipal.",
+        "indicador": None,
+        "mediciones": [],
+    },
+    {
+        "facultad": "Delta",
+        "nombre": "Cálculo de huella de carbono institucional (ISO 14064)",
+        "dimension": Dimension.AMBIENTAL,
+        "ods": [13],
+        "estado": Estado.FORMALIZADA,
+        "responsable": True,
+        "proposito": PREFIJO + "Cuantificar las emisiones de alcance 1 y 2 de la facultad.",
+        "indicador": {
+            "nombre": "Huella de carbono institucional",
+            "formula": "Emisiones de alcance 1 y 2 según ISO 14064",
+            "unidad": "tCO2e",
+            "periodicidad": Periodicidad.ANUAL,
+            "tipo": TipoIndicador.INSTITUCIONAL,
+            "fuente": "Dato ilustrativo",
+            "referencia_estandar": "ISO 14064",
+        },
+        # Queda enviada y sin validar: es el punto de partida de la demo en vivo.
+        "mediciones": [("2025-12", Decimal("410"), EstadoMedicion.ENVIADA)],
+    },
+    {
+        "facultad": "Delta",
+        "nombre": "Comité de Desarrollo Sostenible",
+        "dimension": Dimension.INSTITUCIONAL,
+        "ods": [17],
+        "estado": Estado.FORMALIZADA,
+        "responsable": True,
+        "proposito": PREFIJO + "Coordinar las acciones de sostenibilidad entre secretarías.",
+        "indicador": None,
+        "mediciones": [],
+    },
+    {
+        "facultad": "San Francisco",
+        "nombre": "Relevamiento mensual de consumo de energía eléctrica y gas",
+        "dimension": Dimension.AMBIENTAL,
+        "ods": [7, 13],
+        "estado": Estado.OPTIMIZADA,
+        "responsable": True,
+        "proposito": PREFIJO + "Medir el consumo para orientar acciones de eficiencia energética.",
+        "indicador": {
+            "nombre": "Consumo eléctrico mensual",
+            "formula": "kWh facturados en el mes",
+            "unidad": "kWh",
+            "periodicidad": Periodicidad.MENSUAL,
+            "tipo": TipoIndicador.INSTITUCIONAL,
+            "fuente": "Dato ilustrativo",
+            "meta": Decimal("12000"),
+        },
+        "mediciones": [("2026-06", Decimal("13500"), V), ("2026-07", Decimal("12800"), V)],
+    },
+    {
+        "facultad": "Resistencia",
+        "nombre": "Plan de digitalización y despapelización",
+        "dimension": Dimension.INSTITUCIONAL,
+        "ods": [9, 12],
+        "estado": Estado.FORMALIZADA,
+        "responsable": True,
+        "proposito": PREFIJO + "Sistematizar de forma digital la gestión estudiantil.",
+        "indicador": None,
+        "mediciones": [],
+    },
+    {
+        "facultad": "La Rioja",
+        "nombre": "Paneles solares en el estacionamiento",
+        "dimension": Dimension.AMBIENTAL,
+        "ods": [7],
+        "estado": Estado.IDENTIFICADA,
+        "responsable": False,
+        "proposito": PREFIJO + "Generar energía renovable en espacios ya construidos.",
+        "indicador": None,
+        "mediciones": [],
+    },
+    {
+        "facultad": "del Neuquén",
+        "nombre": "Programa GenEra: ODS aplicados a la industria hidrocarburífera",
+        "dimension": Dimension.SOCIAL,
+        "ods": [4, 13],
+        "estado": Estado.FORMALIZADA,
+        "responsable": True,
+        "proposito": PREFIJO + "Formar estudiantes secundarios en la Agenda 2030 junto con empresas del sector.",
+        "indicador": None,
+        "mediciones": [],
+    },
+]
