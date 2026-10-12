@@ -1,0 +1,102 @@
+:root {
+  --fondo: #f6f7f4;
+  --superficie: #ffffff;
+  --texto: #1d2a24;
+  --suave: #5c6b63;
+  --borde: #d9ded8;
+  --primario: #1f6b4a;
+  --primario-oscuro: #17533a;
+  --error: #b3261e;
+  --ilustrativo: #8a5a00;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); }
+h1, h2, h3 { line-height: 1.2; }
+a { color: var(--primario); }
+small, .sub, .nota { color: var(--suave); }
+
+button {
+  background: var(--primario);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover { background: var(--primario-oscuro); }
+button:disabled { background: var(--borde); color: var(--suave); cursor: not-allowed; }
+button.enlace { background: none; color: var(--primario); padding: 0; text-decoration: underline; }
+button.secundario { background: var(--superficie); color: var(--primario); border: 1px solid var(--primario); }
+
+input, select, textarea {
+  font: inherit;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  background: var(--superficie);
+}
+label { display: grid; gap: 0.25rem; font-size: 0.9rem; color: var(--suave); }
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.6rem 1.25rem;
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+}
+.barra nav { display: flex; gap: 1rem; flex: 1; }
+.barra nav a { text-decoration: none; padding: 0.25rem 0; color: var(--suave); }
+.barra nav a.active { color: var(--primario); border-bottom: 2px solid var(--primario); }
+.marca { color: var(--primario); letter-spacing: 0.04em; }
+.usuario { color: var(--suave); }
+
+.contenido { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
+
+.login { max-width: 360px; margin: 10vh auto; padding: 0 1rem; }
+.login form { display: grid; gap: 0.9rem; margin-top: 1.5rem; }
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+.fila { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; }
+.filtros { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; margin-bottom: 1rem; }
+.grilla { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.formulario { display: grid; gap: 0.75rem; max-width: 560px; }
+
+table { width: 100%; border-collapse: collapse; background: var(--superficie); }
+th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--borde); vertical-align: top; }
+th { font-size: 0.8rem; text-transform: uppercase; color: var(--suave); letter-spacing: 0.03em; }
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  text-transform: capitalize;
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+}
+.estado-formalizada, .medicion-enviada { background: #e6eefb; border-color: #b9cdf0; }
+.estado-medida, .medicion-validada { background: #e2f3ea; border-color: #a9d9bf; }
+.estado-optimizada { background: #d3ecdc; border-color: #7ec29c; }
+.medicion-rechazada { background: #fbe9e7; border-color: #f0b8b2; }
+.ilustrativo { background: #fff3d6; border-color: #ecc66e; color: var(--ilustrativo); text-transform: none; }
+
+.error { color: var(--error); margin: 0.25rem 0; }
+.evidencias { margin: 0 0 0.4rem; padding-left: 1.1rem; }
+.evidencia-form { display: grid; gap: 0.4rem; margin-top: 0.4rem; }
+
+.kpi strong { display: block; font-size: 1.8rem; color: var(--primario); }
+.kpi span { color: var(--suave); font-size: 0.9rem; }
+.aviso { background: #fff3d6; border: 1px solid #ecc66e; border-radius: 8px; padding: 0.6rem 0.9rem; }
+.grafico-titulo { margin: 0 0 0.5rem; font-size: 1rem; }
