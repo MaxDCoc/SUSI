@@ -79,22 +79,24 @@ export default function IndicadorCard({ indicador, mediciones, puedeEscribir, on
         )
       )}
       {mediciones.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Período</th>
-              <th>Valor</th>
-              <th>Estado</th>
-              <th>Evidencias</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mediciones.map((m) => (
-              <MedicionRow key={m.id} medicion={m} puedeEscribir={puedeEscribir} onCambio={onCambio} />
-            ))}
-          </tbody>
-        </table>
+        <div className="tabla">
+          <table>
+            <thead>
+              <tr>
+                <th>Período</th>
+                <th>Valor</th>
+                <th>Estado</th>
+                <th>Evidencias</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mediciones.map((m) => (
+                <MedicionRow key={m.id} medicion={m} puedeEscribir={puedeEscribir} onCambio={onCambio} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
       {puedeEscribir && (
         <form onSubmit={cargar} className="fila" style={{ marginTop: "0.75rem" }}>

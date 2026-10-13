@@ -78,30 +78,32 @@ export default function Green() {
       <section className="tarjeta">
         <h2>Costo por operación (promedios medidos)</h2>
         {muestras.data && muestras.data.operaciones.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Operación</th>
-                <th>Muestras</th>
-                <th>CPU (ms)</th>
-                <th>Tiempo (ms)</th>
-                <th>Bytes</th>
-                <th>Consultas SQL</th>
-              </tr>
-            </thead>
-            <tbody>
-              {muestras.data.operaciones.map((o) => (
-                <tr key={o.operacion}>
-                  <td>{o.operacion}</td>
-                  <td>{o.n}</td>
-                  <td>{fmt(o.cpu_ms_prom, 2)}</td>
-                  <td>{fmt(o.wall_ms_prom, 2)}</td>
-                  <td>{fmt(o.bytes_prom, 0)}</td>
-                  <td>{fmt(o.consultas_prom, 1)}</td>
+          <div className="tabla">
+            <table>
+              <thead>
+                <tr>
+                  <th>Operación</th>
+                  <th>Muestras</th>
+                  <th>CPU (ms)</th>
+                  <th>Tiempo (ms)</th>
+                  <th>Bytes</th>
+                  <th>Consultas SQL</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {muestras.data.operaciones.map((o) => (
+                  <tr key={o.operacion}>
+                    <td>{o.operacion}</td>
+                    <td>{o.n}</td>
+                    <td>{fmt(o.cpu_ms_prom, 2)}</td>
+                    <td>{fmt(o.wall_ms_prom, 2)}</td>
+                    <td>{fmt(o.bytes_prom, 0)}</td>
+                    <td>{fmt(o.consultas_prom, 1)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p>Todavía no hay muestras: usá la aplicación y volvé a esta pantalla.</p>
         )}

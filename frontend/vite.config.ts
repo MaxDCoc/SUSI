@@ -2,13 +2,16 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+// Backend contra el que se desarrolla; se cambia con VITE_API_TARGET si el puerto 8000 está ocupado.
+const backend = process.env.VITE_API_TARGET ?? "http://localhost:8000";
+
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://localhost:8000",
-      "/admin": "http://localhost:8000",
-      "/static": "http://localhost:8000",
+      "/api": backend,
+      "/admin": backend,
+      "/static": backend,
     },
   },
   test: {

@@ -41,7 +41,8 @@ export default function PracticaDetalle() {
 
   const p = practica.data;
   const puedeEscribir = tieneRol(p.facultad, "responsable");
-  const siguiente = catalogos.data?.estados[ESTADOS.indexOf(p.estado) + 1];
+  const actual = ESTADOS.indexOf(p.estado);
+  const siguiente = catalogos.data?.estados[actual + 1];
 
   // Un clic doble no puede saltar dos niveles: se manda el estado que se ve y se bloquea el botón mientras espera.
   async function promover() {
@@ -107,6 +108,13 @@ export default function PracticaDetalle() {
       <p className="nota">
         {p.facultad_nombre} · {p.dimension} · Responsable: {p.responsable_nombre ?? "sin asignar"}
       </p>
+      <ol className="escalera" aria-label="Madurez de la práctica">
+        {ESTADOS.map((e, i) => (
+          <li key={e} className={i < actual ? "hecho" : i === actual ? "actual" : undefined} aria-current={i === actual ? "step" : undefined}>
+            {catalogos.data?.estados.find((o) => o.valor === e)?.etiqueta ?? e}
+          </li>
+        ))}
+      </ol>
       {p.proposito && <p>{p.proposito}</p>}
 
       {puedeEscribir && (

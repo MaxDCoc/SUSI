@@ -1,7 +1,17 @@
 import type { Estado, EstadoMedicion } from "../api/types";
 
 export function EstadoBadge({ estado }: { estado: Estado }) {
-  return <span className={`badge estado-${estado}`}>{estado}</span>;
+  return (
+    <span className={`badge estado-${estado}`}>
+      <span className="nivel" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
+      </span>
+      {estado}
+    </span>
+  );
 }
 
 export function MedicionBadge({ estado }: { estado: EstadoMedicion }) {

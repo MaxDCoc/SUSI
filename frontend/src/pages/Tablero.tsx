@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { type CSSProperties, lazy, Suspense, useMemo, useState } from "react";
 
 import type { Catalogos, GrupoResumen, Resumen } from "../api/types";
 import { useApi } from "../api/useApi";
@@ -6,9 +6,19 @@ import { barrasApiladasOption, embudoOption } from "../charts/options";
 
 const Chart = lazy(() => import("../charts/Chart"));
 
-function Grafico({ titulo, option, alto }: { titulo: string; option: Record<string, unknown>; alto?: number }) {
+function Grafico({
+  titulo,
+  option,
+  alto,
+  ancho,
+}: {
+  titulo: string;
+  option: Record<string, unknown>;
+  alto?: number;
+  ancho?: boolean;
+}) {
   return (
-    <section className="tarjeta">
+    <section className={ancho ? "tarjeta ancho" : "tarjeta"}>
       <h2 className="grafico-titulo">{titulo}</h2>
       <Suspense fallback={<p>Cargando gráfico…</p>}>
         <Chart option={option} etiqueta={titulo} alto={alto} />
@@ -104,7 +114,7 @@ export default function Tablero() {
       {datos && opciones && (
         <>
           {datos.ilustrativas > 0 && (
-            <p className="nota">
+            <p className="aviso">
               {datos.ilustrativas} de {datos.total_practicas} prácticas son datos ilustrativos (ejemplos inspirados en
               el relevamiento, no cargados por las facultades).
             </p>
@@ -117,33 +127,37 @@ export default function Tablero() {
             <div className="tarjeta kpi">
               <strong>{datos.kpis.con_responsable.porcentaje}%</strong>
               <span>Con responsable ({datos.kpis.con_responsable.cantidad})</span>
+              <div className="medidor" style={{ "--valor": `${datos.kpis.con_responsable.porcentaje}%` } as CSSProperties} aria-hidden="true" />
             </div>
             <div className="tarjeta kpi">
               <strong>{datos.kpis.con_indicador.porcentaje}%</strong>
               <span>Con indicador ({datos.kpis.con_indicador.cantidad})</span>
+              <div className="medidor" style={{ "--valor": `${datos.kpis.con_indicador.porcentaje}%` } as CSSProperties} aria-hidden="true" />
             </div>
             <div className="tarjeta kpi">
               <strong>{datos.kpis.con_evidencia_validada.porcentaje}%</strong>
               <span>Con evidencia validada ({datos.kpis.con_evidencia_validada.cantidad})</span>
+              <div className="medidor" style={{ "--valor": `${datos.kpis.con_evidencia_validada.porcentaje}%` } as CSSProperties} aria-hidden="true" />
             </div>
             <div className="tarjeta kpi">
               <strong>
                 {datos.cobertura.facultades_con_practicas} / {datos.cobertura.facultades_total}
               </strong>
               <span>Facultades con prácticas cargadas</span>
+              <div className="medidor" style={{ "--valor": `${datos.cobertura.porcentaje}%` } as CSSProperties} aria-hidden="true" />
             </div>
           </div>
 
           {datos.total_practicas === 0 ? (
             <p>No hay prácticas con esos filtros.</p>
           ) : (
-            <>
+            <div className="graficos">
               <Grafico titulo="Embudo de madurez (prácticas que alcanzaron cada estado)" option={opciones.embudo} />
               <Grafico titulo="Por región" option={opciones.region} alto={altoPara(datos.por_region)} />
               <Grafico titulo="Por dimensión" option={opciones.dimension} alto={altoPara(datos.por_dimension)} />
-              <Grafico titulo="Por facultad" option={opciones.facultad} alto={altoPara(datos.por_facultad)} />
               <Grafico titulo="Por ODS" option={opciones.ods} alto={altoPara(datos.por_ods)} />
-            </>
+              <Grafico titulo="Por facultad" option={opciones.facultad} alto={altoPara(datos.por_facultad)} ancho />
+            </div>
           )}
         </>
       )}

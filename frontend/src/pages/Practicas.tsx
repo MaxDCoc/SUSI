@@ -97,30 +97,32 @@ export default function Practicas() {
           {lista.error}
         </p>
       )}
-      <table>
-        <thead>
-          <tr>
-            <th>Práctica</th>
-            <th>Facultad</th>
-            <th>Dimensión</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lista.data?.results.map((p) => (
-            <tr key={p.id}>
-              <td>
-                <Link to={`/practicas/${p.id}`}>{p.nombre}</Link> {p.origen === "ilustrativa" && <IlustrativoBadge />}
-              </td>
-              <td>{p.facultad_nombre}</td>
-              <td>{p.dimension}</td>
-              <td>
-                <EstadoBadge estado={p.estado} />
-              </td>
+      <div className="tabla">
+        <table>
+          <thead>
+            <tr>
+              <th>Práctica</th>
+              <th>Facultad</th>
+              <th>Dimensión</th>
+              <th>Estado</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {lista.data?.results.map((p) => (
+              <tr key={p.id}>
+                <td>
+                  <Link to={`/practicas/${p.id}`}>{p.nombre}</Link> {p.origen === "ilustrativa" && <IlustrativoBadge />}
+                </td>
+                <td>{p.facultad_nombre}</td>
+                <td>{p.dimension}</td>
+                <td>
+                  <EstadoBadge estado={p.estado} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {lista.data?.count === 0 && <p>No hay prácticas con esos filtros.</p>}
       <div className="fila" style={{ margin: "0.75rem 0 1.5rem" }}>
         <button type="button" className="secundario" disabled={pagina <= 1} onClick={() => setPagina(pagina - 1)}>
