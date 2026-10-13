@@ -15,6 +15,26 @@ export default function IndicadorCard({ indicador, mediciones, puedeEscribir, on
   const [periodo, setPeriodo] = useState("");
   const [valor, setValor] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [editandoMeta, setEditandoMeta] = useState(false);
+  const [meta, setMeta] = useState("");
+
+  function empezarEdicionMeta() {
+    setError(null);
+    setMeta(indicador.meta === null ? "" : String(Number(indicador.meta)));
+    setEditandoMeta(true);
+  }
+
+  async function guardarMeta(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    try {
+      await api(`/api/indicadores/${indicador.id}/`, { method: "PATCH", body: { meta: meta === "" ? null : meta } });
+      setEditandoMeta(false);
+      onCambio();
+    } catch (err) {
+      setError(mensajeDeError(err));
+    }
+  }
 
   async function cargar(e: FormEvent) {
     e.preventDefault();
@@ -35,10 +55,28 @@ export default function IndicadorCard({ indicador, mediciones, puedeEscribir, on
         {indicador.nombre} <small>({indicador.unidad}, {indicador.periodicidad})</small>
       </h3>
       <p className="nota">{indicador.formula}</p>
-      {indicador.meta !== null && (
-        <p>
-          Meta: {Number(indicador.meta)} {indicador.unidad}
-        </p>
+      {editandoMeta ? (
+        <form onSubmit={guardarMeta} className="fila">
+          <label>
+            Meta ({indicador.unidad})
+            <input type="number" step="any" value={meta} onChange={(e) => setMeta(e.target.value)} />
+          </label>
+          <button type="submit">Guardar meta</button>
+          <button type="button" className="secundario" onClick={() => setEditandoMeta(false)}>
+            Cancelar
+          </button>
+        </form>
+      ) : (
+        (indicador.meta !== null || puedeEscribir) && (
+          <p>
+            {indicador.meta !== null ? `Meta: ${Number(indicador.meta)} ${indicador.unidad}` : "Sin meta definida."}{" "}
+            {puedeEscribir && (
+              <button type="button" className="enlace" onClick={empezarEdicionMeta}>
+                {indicador.meta !== null ? "Editar meta" : "Definir meta"}
+              </button>
+            )}
+          </p>
+        )
       )}
       {mediciones.length > 0 && (
         <table>

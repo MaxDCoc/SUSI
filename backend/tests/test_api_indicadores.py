@@ -53,3 +53,22 @@ def test_responsable_edita_la_meta(api_para, escenario):
     )
 
     assert respuesta.status_code == 200
+
+
+def test_responsable_quita_la_meta(api_para, escenario):
+    cliente = api_para(escenario.responsable)
+    url = f"{URL}{escenario.indicador.id}/"
+    assert cliente.patch(url, {"meta": "100"}, format="json").json()["meta"] == "100.0000"
+
+    respuesta = cliente.patch(url, {"meta": None}, format="json")
+
+    assert respuesta.status_code == 200
+    assert respuesta.json()["meta"] is None
+
+
+def test_un_validador_no_edita_la_meta(api_para, escenario):
+    respuesta = api_para(escenario.validador).patch(
+        f"{URL}{escenario.indicador.id}/", {"meta": "100"}, format="json"
+    )
+
+    assert respuesta.status_code == 403
