@@ -64,6 +64,7 @@ export default function MedicionRow({ medicion, puedeEscribir, onCambio }: Props
                 setAgregando(false);
                 onCambio();
               }}
+              onCancelar={() => setAgregando(false)}
             />
           ) : (
             <button type="button" className="enlace" onClick={() => setAgregando(true)}>

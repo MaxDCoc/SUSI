@@ -36,6 +36,15 @@ export default function Tablero() {
   const [dimension, setDimension] = useState("");
   const [ods, setOds] = useState("");
 
+  // La Facultad se elige solo entre las de la región elegida; si cambia la región, se descarta la que ya no corresponde.
+  const facultades = catalogos.data?.facultades.filter((f) => !region || String(f.region_id) === region);
+
+  function elegirRegion(valor: string) {
+    setRegion(valor);
+    const elegida = catalogos.data?.facultades.find((f) => String(f.id) === facultad);
+    if (valor && elegida && String(elegida.region_id) !== valor) setFacultad("");
+  }
+
   const params = new URLSearchParams();
   if (region) params.set("region", region);
   if (facultad) params.set("facultad", facultad);
@@ -62,7 +71,7 @@ export default function Tablero() {
       <div className="filtros">
         <label>
           Región
-          <select value={region} onChange={(e) => setRegion(e.target.value)}>
+          <select value={region} onChange={(e) => elegirRegion(e.target.value)}>
             <option value="">Todas</option>
             {catalogos.data?.regiones.map((r) => (
               <option key={r.id} value={r.id}>
@@ -75,7 +84,7 @@ export default function Tablero() {
           Facultad
           <select value={facultad} onChange={(e) => setFacultad(e.target.value)}>
             <option value="">Todas</option>
-            {catalogos.data?.facultades.map((f) => (
+            {facultades?.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.nombre}
               </option>
