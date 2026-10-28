@@ -41,6 +41,22 @@ def test_archivos_invalidos_dan_400(api_para, escenario, nombre, contenido):
     assert respuesta.status_code == 400
 
 
+# El cartel que ve el usuario sale de este mensaje: un archivo grande tiene que dar un error claro, no silencio.
+def test_archivo_de_mas_de_2mb_da_400_con_un_mensaje_claro(api_para, escenario):
+    grande = PDF + b" " * (2 * 1024 * 1024)
+
+    respuesta = subir(api_para(escenario.responsable), escenario, "grande.pdf", grande)
+
+    assert respuesta.status_code == 400
+    assert "2 MB" in respuesta.json()["archivo"][0]
+
+
+def test_archivo_de_exactamente_2mb_se_acepta(api_para, escenario):
+    justo = PDF + b" " * (2 * 1024 * 1024 - len(PDF))
+
+    assert subir(api_para(escenario.responsable), escenario, "justo.pdf", justo).status_code == 201
+
+
 # Final review: la evidencia que llega después de validar nadie la vio
 def test_no_se_agrega_evidencia_a_una_medicion_ya_validada(api_para, escenario):
     from indicators.models import EstadoMedicion
