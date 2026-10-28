@@ -143,3 +143,30 @@ def reabrir_medicion(medicion_id: int, user) -> Medicion:
     medicion.validado_por = None
     medicion.validado_en = None
     return _guardar(medicion, user)
+
+
+@transaction.atomic
+def retirar_medicion(medicion_id: int, user) -> Medicion:
+    """Vuelve a borrador una medición enviada, para corregirla antes de que alguien la revise."""
+    medicion = _medicion_bloqueada(medicion_id)
+    exigir_rol(user, medicion.facultad_scope_id, Rol.RESPONSABLE)
+    if medicion.estado != EstadoMedicion.ENVIADA:
+        raise ValidationError("Solo se puede retirar una medición enviada.")
+    medicion.estado = EstadoMedicion.BORRADOR
+    return _guardar(medicion, user)
+
+
+@transaction.atomic
+def eliminar_medicion(medicion_id: int, user) -> None:
+    """Elimina un borrador (nadie lo revisó todavía) junto con sus evidencias y sus archivos."""
+    medicion = _medicion_bloqueada(medicion_id)
+    exigir_rol(user, medicion.facultad_scope_id, Rol.RESPONSABLE)
+    if medicion.estado != EstadoMedicion.BORRADOR:
+        raise ValidationError("Solo se pueden eliminar mediciones en borrador.")
+    archivos = [(e.archivo.storage, e.archivo.name) for e in medicion.evidencias.all() if e.archivo]
+    medicion._history_user = user
+    medicion.delete()
+    # Django no borra los archivos al borrar la fila: sin esto quedarían huérfanos en el almacenamiento.
+    # Se borran recién cuando la transacción se confirma, para no perderlos si algo falla antes.
+    for almacenamiento, nombre in archivos:
+        transaction.on_commit(lambda a=almacenamiento, n=nombre: a.delete(n))

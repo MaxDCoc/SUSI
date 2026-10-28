@@ -44,7 +44,7 @@ def _comentario(request) -> str:
 
 class MedicionViewSet(viewsets.ModelViewSet):
     serializer_class = MedicionSerializer
-    http_method_names = ["get", "post", "patch", "head", "options"]
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_queryset(self):
         qs = (
@@ -83,6 +83,9 @@ class MedicionViewSet(viewsets.ModelViewSet):
         # Quien modifica el borrador pasa a ser quien lo cargó: así no puede validarlo después.
         serializer.save(cargado_por=self.request.user)
 
+    def perform_destroy(self, instance):
+        services.eliminar_medicion(instance.pk, self.request.user)
+
     def _responder(self, pk) -> Response:
         # Se relee con el queryset de la vista para que incluya evidencias y nombres.
         return Response(self.get_serializer(self.get_queryset().get(pk=pk)).data)
@@ -109,4 +112,10 @@ class MedicionViewSet(viewsets.ModelViewSet):
     def reabrir(self, request, pk=None):
         self.get_object()
         services.reabrir_medicion(pk, request.user)
+        return self._responder(pk)
+
+    @action(detail=True, methods=["post"])
+    def retirar(self, request, pk=None):
+        self.get_object()
+        services.retirar_medicion(pk, request.user)
         return self._responder(pk)

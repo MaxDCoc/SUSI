@@ -202,3 +202,92 @@ def test_la_lista_no_tiene_consultas_n_mas_uno(api_para, escenario, django_asser
         respuesta = cliente.get(URL)
 
     assert respuesta.status_code == 200
+
+
+# Retirar: un error descubierto después de enviar se corrige sin esperar a que el Validador la rechace
+def test_el_responsable_retira_una_medicion_enviada_y_puede_corregirla(api_para, escenario):
+    cliente = api_para(escenario.responsable)
+    pk = escenario.medicion.id
+    cliente.post(f"{URL}{pk}/enviar/")
+
+    retirada = cliente.post(f"{URL}{pk}/retirar/")
+
+    assert retirada.status_code == 200 and retirada.json()["estado"] == "borrador"
+    assert cliente.patch(f"{URL}{pk}/", {"valor": "77"}, format="json").status_code == 200
+    assert Medicion.objects.get(pk=pk).valor == Decimal("77")
+
+
+def test_solo_se_retira_una_medicion_enviada(api_para, escenario):
+    cliente = api_para(escenario.responsable)
+    pk = escenario.medicion.id
+
+    assert cliente.post(f"{URL}{pk}/retirar/").status_code == 400  # todavía es borrador
+
+    cliente.post(f"{URL}{pk}/enviar/")
+    api_para(escenario.validador).post(f"{URL}{pk}/validar/")
+    validada = cliente.post(f"{URL}{pk}/retirar/")
+    assert validada.status_code == 400
+    assert Medicion.objects.get(pk=pk).estado == EstadoMedicion.VALIDADA
+
+
+def test_el_validador_no_retira_mediciones(api_para, escenario):
+    api_para(escenario.responsable).post(f"{URL}{escenario.medicion.id}/enviar/")
+
+    assert api_para(escenario.validador).post(f"{URL}{escenario.medicion.id}/retirar/").status_code == 403
+
+
+# Eliminar: solo un borrador, que nadie revisó todavía
+def test_el_responsable_elimina_un_borrador_con_sus_evidencias(api_para, escenario):
+    Evidencia.objects.create(
+        medicion=escenario.medicion, tipo=TipoEvidencia.ENLACE, url="https://example.org/x", creado_por=escenario.responsable
+    )
+    pk = escenario.medicion.id
+
+    respuesta = api_para(escenario.responsable).delete(f"{URL}{pk}/")
+
+    assert respuesta.status_code == 204
+    assert not Medicion.objects.filter(pk=pk).exists()
+    assert not Evidencia.objects.filter(medicion_id=pk).exists()
+    assert Medicion.history.filter(id=pk, history_type="-").exists()  # queda quién la eliminó
+
+
+def test_no_se_elimina_una_medicion_enviada_ni_validada(api_para, escenario):
+    cliente = api_para(escenario.responsable)
+    pk = escenario.medicion.id
+    cliente.post(f"{URL}{pk}/enviar/")
+    enviada = cliente.delete(f"{URL}{pk}/")
+    api_para(escenario.validador).post(f"{URL}{pk}/validar/")
+    validada = cliente.delete(f"{URL}{pk}/")
+
+    assert (enviada.status_code, validada.status_code) == (400, 400)
+    assert "borrador" in str(validada.json())
+    assert Medicion.objects.filter(pk=pk).exists()
+
+
+def test_solo_un_responsable_de_la_facultad_elimina(api_para, escenario):
+    pk = escenario.medicion.id
+
+    assert api_para(escenario.validador).delete(f"{URL}{pk}/").status_code == 403
+    assert api_para().delete(f"{URL}{pk}/").status_code in (401, 403)
+    assert Medicion.objects.filter(pk=pk).exists()
+
+
+def test_al_eliminar_un_borrador_se_borran_tambien_sus_archivos(
+    api_para, escenario, settings, django_capture_on_commit_callbacks
+):
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    evidencia = Evidencia.objects.create(
+        medicion=escenario.medicion,
+        tipo=TipoEvidencia.ARCHIVO,
+        archivo=SimpleUploadedFile("a.pdf", b"%PDF-1.4\n%prueba"),
+        creado_por=escenario.responsable,
+    )
+    ruta = settings.MEDIA_ROOT / evidencia.archivo.name
+    assert ruta.exists()
+
+    with django_capture_on_commit_callbacks(execute=True):
+        respuesta = api_para(escenario.responsable).delete(f"{URL}{escenario.medicion.id}/")
+
+    assert respuesta.status_code == 204
+    assert not ruta.exists()
