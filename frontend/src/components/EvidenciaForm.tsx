@@ -69,12 +69,17 @@ export default function EvidenciaForm({ medicionId, onCreada, onCancelar }: Prop
       {tipo === "enlace" ? (
         <input type="url" required placeholder="https://…" value={url} onChange={(e) => setUrl(e.target.value)} />
       ) : (
-        <input
-          type="file"
-          required
-          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-          onChange={elegirArchivo}
-        />
+        <>
+          <p className="nota" style={{ margin: 0 }}>
+            Solo se aceptan archivos PDF, PNG o JPG de hasta 2 MB.
+          </p>
+          <input
+            type="file"
+            required
+            accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+            onChange={elegirArchivo}
+          />
+        </>
       )}
       <input placeholder="Descripción" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
       <div className="fila">

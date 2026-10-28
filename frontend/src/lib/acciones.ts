@@ -1,12 +1,18 @@
 import type { Estado, EstadoMedicion, Medicion, Rol, Sesion } from "../api/types";
 
-export type AccionMedicion = "enviar" | "reabrir";
+export type AccionMedicion = "enviar" | "retirar" | "reabrir";
 
 export function accionesDeMedicion(estado: EstadoMedicion, puedeEscribir: boolean): AccionMedicion[] {
   if (!puedeEscribir) return [];
   if (estado === "borrador") return ["enviar"];
+  if (estado === "enviada") return ["retirar"]; // mientras nadie la haya revisado
   if (estado === "rechazada") return ["reabrir"];
   return [];
+}
+
+// Un borrador todavía no lo vio nadie: se puede corregir o eliminar. Lo ya enviado se retira primero.
+export function puedeModificar(estado: EstadoMedicion, puedeEscribir: boolean): boolean {
+  return puedeEscribir && estado === "borrador";
 }
 
 // La evidencia va antes de la validación: una vez validada, nadie la revisó.

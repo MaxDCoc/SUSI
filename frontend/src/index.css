@@ -120,6 +120,14 @@ button.enlace {
   text-underline-offset: 3px;
 }
 button.enlace:hover:not(:disabled) { background: none; color: var(--primario-oscuro); }
+/* Acciones que borran: borde rojo, y rojo lleno en el botón que confirma */
+button.peligro { background: var(--superficie); color: var(--error); border-color: var(--error); }
+button.peligro:hover:not(:disabled) { background: var(--error-suave); }
+button.peligro.firme { background: var(--error); color: #fff; }
+button.peligro.firme:hover:not(:disabled) { background: #8f1d17; }
+.acciones { display: grid; gap: 0.4rem; justify-items: start; }
+.acciones p { margin: 0; max-width: 32ch; }
+td.no-corta { white-space: nowrap; }
 
 /* ---------- Formularios ---------- */
 label { display: grid; gap: 0.35rem; font-size: 0.8125rem; font-weight: 500; color: var(--suave); }

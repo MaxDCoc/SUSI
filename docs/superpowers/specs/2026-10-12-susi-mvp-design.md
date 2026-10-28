@@ -105,8 +105,10 @@ Alcance por facultad: `django-guardian` con permisos por objeto. Si resulta invi
 reemplaza por un filtro de queryset según la pertenencia del usuario a facultades (mismo comportamiento visible).
 
 ### Transiciones de la Medición
-`borrador → enviada` (Responsable) · `enviada → validada | rechazada` (Validador) · `rechazada → borrador`.
-Una medición validada no se edita (para corregirla se registra una nueva).
+`borrador → enviada` (Responsable) · `enviada → validada | rechazada` (Validador) · `rechazada → borrador` ·
+`enviada → borrador` (el Responsable la retira mientras nadie la haya revisado).
+Un borrador se puede editar y eliminar, junto con sus evidencias y sus archivos; quién la eliminó queda en el historial.
+Una medición enviada o validada no se edita ni se elimina (para corregir una validada se registra una nueva).
 
 ### Transiciones de la Práctica (validadas en el servidor)
 Solo hacia adelante y por acción explícita `promover`:

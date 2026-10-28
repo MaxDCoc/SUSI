@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Rol, Sesion } from "../api/types";
-import { accionesDeMedicion, puedeAgregarEvidencia, puedeRetroceder, puedeValidar } from "./acciones";
+import { accionesDeMedicion, puedeAgregarEvidencia, puedeModificar, puedeRetroceder, puedeValidar } from "./acciones";
 
 describe("puedeAgregarEvidencia", () => {
   it("se agrega evidencia antes de validar, no después", () => {
@@ -29,18 +29,32 @@ describe("puedeRetroceder", () => {
 });
 
 describe("accionesDeMedicion", () => {
-  it("un responsable puede enviar un borrador y reabrir una rechazada", () => {
+  it("un responsable puede enviar un borrador, retirar una enviada y reabrir una rechazada", () => {
     expect(accionesDeMedicion("borrador", true)).toEqual(["enviar"]);
+    expect(accionesDeMedicion("enviada", true)).toEqual(["retirar"]);
     expect(accionesDeMedicion("rechazada", true)).toEqual(["reabrir"]);
   });
 
-  it("no hay acciones para estados que ya avanzaron", () => {
-    expect(accionesDeMedicion("enviada", true)).toEqual([]);
+  it("una medición validada ya no tiene acciones", () => {
     expect(accionesDeMedicion("validada", true)).toEqual([]);
   });
 
   it("sin permiso de escritura no hay acciones", () => {
     expect(accionesDeMedicion("borrador", false)).toEqual([]);
+    expect(accionesDeMedicion("enviada", false)).toEqual([]);
+  });
+});
+
+describe("puedeModificar", () => {
+  it("solo se corrige o elimina un borrador", () => {
+    expect(puedeModificar("borrador", true)).toBe(true);
+    expect(puedeModificar("enviada", true)).toBe(false);
+    expect(puedeModificar("rechazada", true)).toBe(false);
+    expect(puedeModificar("validada", true)).toBe(false);
+  });
+
+  it("sin permiso de escritura no se modifica", () => {
+    expect(puedeModificar("borrador", false)).toBe(false);
   });
 });
 

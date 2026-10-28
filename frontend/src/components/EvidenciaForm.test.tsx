@@ -59,6 +59,15 @@ it("Cancelar cierra el formulario sin subir nada", async () => {
   expect(doble.llamadas).toHaveLength(0);
 });
 
+it("antes de elegir un archivo ya avisa qué se acepta; con un enlace no hace falta", async () => {
+  renderizar();
+  expect(screen.queryByText(/hasta 2 MB/)).not.toBeInTheDocument();
+
+  await userEvent.selectOptions(screen.getByLabelText("Tipo de evidencia"), "archivo");
+
+  expect(screen.getByText("Solo se aceptan archivos PDF, PNG o JPG de hasta 2 MB.")).toBeInTheDocument();
+});
+
 it("un archivo de más de 2 MB se rechaza al elegirlo: avisa de inmediato y no se sube", async () => {
   renderizar();
 

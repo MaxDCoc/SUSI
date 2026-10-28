@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 
 import { api, mensajeDeError } from "../api/client";
 import type { Medicion } from "../api/types";
-import { type AccionMedicion, accionesDeMedicion, puedeAgregarEvidencia } from "../lib/acciones";
+import { type AccionMedicion, accionesDeMedicion, puedeAgregarEvidencia, puedeModificar } from "../lib/acciones";
 import { MedicionBadge } from "./Badge";
 import EvidenciaForm from "./EvidenciaForm";
 
@@ -14,12 +14,21 @@ interface Props {
 
 const ETIQUETA_ACCION: Record<AccionMedicion, string> = {
   enviar: "Enviar a validación",
+  retirar: "Retirar de validación",
   reabrir: "Reabrir",
 };
 
 export default function MedicionRow({ medicion, puedeEscribir, onCambio }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [agregando, setAgregando] = useState(false);
+  const [editando, setEditando] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
+  const [periodo, setPeriodo] = useState(medicion.periodo);
+  const [valor, setValor] = useState("");
+
+  const modificable = puedeModificar(medicion.estado, puedeEscribir);
+  // Los campos de edición están en otras celdas de la fila: se asocian al formulario con este id.
+  const formulario = `editar-medicion-${medicion.id}`;
 
   async function ejecutar(accion: AccionMedicion) {
     setError(null);
@@ -31,11 +40,56 @@ export default function MedicionRow({ medicion, puedeEscribir, onCambio }: Props
     }
   }
 
+  function empezarEdicion() {
+    setError(null);
+    setPeriodo(medicion.periodo);
+    setValor(String(Number(medicion.valor)));
+    setEditando(true);
+  }
+
+  async function guardar(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    try {
+      await api(`/api/mediciones/${medicion.id}/`, { method: "PATCH", body: { periodo, valor } });
+      setEditando(false);
+      onCambio();
+    } catch (err) {
+      setError(mensajeDeError(err));
+    }
+  }
+
+  async function eliminar() {
+    setError(null);
+    try {
+      await api(`/api/mediciones/${medicion.id}/`, { method: "DELETE" });
+      onCambio();
+    } catch (err) {
+      setError(mensajeDeError(err));
+      setConfirmando(false);
+    }
+  }
+
   return (
     <tr>
-      <td>{medicion.periodo}</td>
-      <td>
-        {Number(medicion.valor)} {medicion.unidad}
+      <td className="no-corta">
+        {editando ? (
+          <input type="month" form={formulario} aria-label="Período" value={periodo} onChange={(e) => setPeriodo(e.target.value)} required />
+        ) : (
+          medicion.periodo
+        )}
+      </td>
+      <td className="no-corta">
+        {editando ? (
+          <>
+            <input type="number" step="any" form={formulario} aria-label="Valor" value={valor} onChange={(e) => setValor(e.target.value)} required />{" "}
+            {medicion.unidad}
+          </>
+        ) : (
+          <>
+            {Number(medicion.valor)} {medicion.unidad}
+          </>
+        )}
       </td>
       <td>
         <MedicionBadge estado={medicion.estado} />
@@ -73,16 +127,49 @@ export default function MedicionRow({ medicion, puedeEscribir, onCambio }: Props
           ))}
       </td>
       <td>
-        {accionesDeMedicion(medicion.estado, puedeEscribir).map((accion) => (
-          <button key={accion} type="button" onClick={() => ejecutar(accion)}>
-            {ETIQUETA_ACCION[accion]}
-          </button>
-        ))}
-        {error && (
-          <p role="alert" className="error">
-            {error}
-          </p>
-        )}
+        <div className="acciones">
+          {editando ? (
+            <form id={formulario} onSubmit={guardar} className="acciones">
+              <button type="submit">Guardar cambios</button>
+              <button type="button" className="secundario" onClick={() => setEditando(false)}>
+                Cancelar
+              </button>
+            </form>
+          ) : confirmando ? (
+            <>
+              <p className="nota">¿Eliminar esta medición? Se borran también sus evidencias y no se puede deshacer.</p>
+              <button type="button" className="peligro firme" onClick={eliminar}>
+                Sí, eliminar
+              </button>
+              <button type="button" className="secundario" onClick={() => setConfirmando(false)}>
+                No, conservar
+              </button>
+            </>
+          ) : (
+            <>
+              {accionesDeMedicion(medicion.estado, puedeEscribir).map((accion) => (
+                <button key={accion} type="button" onClick={() => ejecutar(accion)}>
+                  {ETIQUETA_ACCION[accion]}
+                </button>
+              ))}
+              {modificable && (
+                <>
+                  <button type="button" className="secundario" onClick={empezarEdicion}>
+                    Editar
+                  </button>
+                  <button type="button" className="peligro" onClick={() => setConfirmando(true)}>
+                    Eliminar
+                  </button>
+                </>
+              )}
+            </>
+          )}
+          {error && (
+            <p role="alert" className="error">
+              {error}
+            </p>
+          )}
+        </div>
       </td>
     </tr>
   );
